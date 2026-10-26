@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Couple Dashboard — The Wed Tale</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.dashboard{max-width:1300px;margin:auto;padding:70px 30px}
+.dashboard-header{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:55px}
+.dashboard-header h1{font-size:clamp(55px,7vw,95px)}
+.dashboard-subtitle{margin-top:20px;color:#777;max-width:500px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.dashboard-card{min-height:260px;padding:30px;border:1px solid #ddd;display:flex;flex-direction:column;justify-content:space-between}
+.dashboard-card-number{font-size:9px;color:#888;letter-spacing:.2em}
+.dashboard-card h2{font-size:38px}
+.dashboard-card p{color:#777;font-size:12px}
+.dashboard-card a,.dashboard-card button{width:fit-content;border:0;border-bottom:1px solid #111;background:transparent;padding:0 0 4px;font-size:11px;color:#111;cursor:pointer}
+.dashboard-section{margin-top:70px}
+.dashboard-section-heading{padding-bottom:20px;border-bottom:1px solid #ddd;margin-bottom:25px}
+.dashboard-section-heading h2{font-size:48px}
+.panel{border:1px solid #ddd;padding:30px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field.full{grid-column:1/-1}
+.field label{font-size:9px;letter-spacing:.14em}
+.field input,.field textarea{width:100%;border:1px solid #ccc;background:#fff;padding:13px;font:inherit;font-size:13px;box-sizing:border-box}
+.field textarea{min-height:150px;resize:vertical}
+.primary-button{margin-top:22px;border:1px solid #111;background:#111;color:#fff;padding:13px 20px;font-size:10px;letter-spacing:.08em;cursor:pointer}
+.notice{margin-top:18px;padding:15px;border:1px solid #ddd;font-size:12px;display:none}
+.notice.show{display:block}
+.submission-list{display:grid;gap:12px}
+.submission{border:1px solid #ddd;padding:20px}
+.submission-title{font-family:"Cormorant Garamond",serif;font-size:30px}
+.submission-meta{margin-top:7px;color:#777;font-size:11px}
+.status{display:inline-block;margin-top:12px;border:1px solid #ddd;padding:6px 9px;font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.empty-state{border:1px dashed #ccc;padding:45px;color:#777;font-size:13px}
+.dashboard-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 30px;border-bottom:1px solid #ddd}
+.dashboard-nav a{font-size:10px;letter-spacing:.15em}
+.logout-button{border:1px solid #111;background:#111;color:white;padding:10px 16px;font-size:10px;cursor:pointer}
+@media(max-width:800px){.dashboard-grid{grid-template-columns:1fr}.dashboard-header{flex-direction:column;align-items:flex-start}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<nav class="dashboard-nav">
+<a href="index.html">← THE WED TALE</a>
+<button class="logout-button" id="logoutButton">LOG OUT</button>
+</nav>
+
+<main class="dashboard">
+<header class="dashboard-header">
+<div>
+<p class="eyebrow">COUPLE DASHBOARD</p>
+<h1>Your<br><em>wedding.</em></h1>
+<p class="dashboard-subtitle" id="welcomeText">Everything you're saving and planning, in one place.</p>
+</div>
+</header>
+
+<section class="dashboard-grid">
+<article class="dashboard-card">
+<span class="dashboard-card-number">01</span>
+<h2>Wedding details</h2>
+<p>Keep your wedding date, city and guest information organised.</p>
+<a href="wedding-details.html">Manage details →</a>
+</article>
+
+<article class="dashboard-card">
+<span class="dashboard-card-number">02</span>
+<h2>Saved</h2>
+<p>Your favourite venues, vendors and wedding inspiration.</p>
+<a href="directory.html">View saved →</a>
+</article>
+
+<article class="dashboard-card">
+<span class="dashboard-card-number">03</span>
+<h2>Enquiries</h2>
+<p>Keep track of conversations with wedding businesses.</p>
+<a href="#enquiries">View enquiries →</a>
+</article>
+</section>
+
+<section class="dashboard-section" id="realWedding">
+<div class="dashboard-section-heading">
+<p class="eyebrow">REAL WEDDING</p>
+<h2>Share your wedding.</h2>
+</div>
+
+<div class="panel">
+<p style="color:#777;font-size:13px;margin-top:0">
+Tell us about your celebration. Your submission will be reviewed by The Wed Tale team before it can appear publicly.
+</p>
+
+<form id="weddingSubmissionForm">
+<div class="form-grid">
+<div class="field">
+<label for="title">WEDDING TITLE</label>
+<input id="title" name="title" required placeholder="Aarav & Meera's Vadodara Wedding">
+</div>
+<div class="field">
+<label for="city">CITY</label>
+<input id="city" name="city" required placeholder="Vadodara">
+</div>
+<div class="field full">
+<label for="story">YOUR WEDDING STORY</label>
+<textarea id="story" name="story" required placeholder="Tell us about your celebration, the venue, the details you loved and what made the day yours."></textarea>
+</div>
+</div>
+<button class="primary-button" type="submit">SUBMIT YOUR WEDDING →</button>
+</form>
+<div class="notice" id="submissionNotice"></div>
+</div>
+</section>
+
+<section class="dashboard-section">
+<div class="dashboard-section-heading">
+<p class="eyebrow">YOUR SUBMISSIONS</p>
+<h2>Submission status.</h2>
+</div>
+<div id="submissionList" class="submission-list">
+<div class="empty-state">Loading your submissions…</div>
+</div>
+</section>
+
+<section class="dashboard-section" id="enquiries">
+<div class="dashboard-section-heading">
+<p class="eyebrow">YOUR ENQUIRIES</p>
+<h2>Conversations.</h2>
+</div>
+<div id="enquiryList">
+<div class="empty-state">Loading your enquiries…</div>
+</div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+let currentUser = null;
+
+function showNotice(message, success=false){
+  const box = document.getElementById("submissionNotice");
+  box.textContent = message;
+  box.classList.add("show");
+  box.style.borderColor = success ? "#111" : "#bbb";
+}
+
+async function loadSubmissions(){
+  const list = document.getElementById("submissionList");
+  const {data, error} = await supabaseClient
+    .from("wedding_submissions")
+    .select("id,title,city,story,status,created_at")
+    .eq("couple_id", currentUser.id)
+    .order("created_at", {ascending:false});
+
+  if(error){
+    list.innerHTML = '<div class="empty-state">We could not load your submissions right now.</div>';
+    return;
+  }
+
+  if(!data || !data.length){
+    list.innerHTML = '<div class="empty-state">You have not submitted a wedding yet.</div>';
+    return;
+  }
+
+  list.innerHTML = data.map(item => `
+    <article class="submission">
+      <div class="submission-title">${escapeHtml(item.title || "Untitled wedding")}</div>
+      <div class="submission-meta">${escapeHtml(item.city || "")} · ${new Date(item.created_at).toLocaleDateString()}</div>
+      <span class="status">${escapeHtml(item.status || "pending")}</span>
+    </article>
+  `).join("");
+}
+
+async function loadEnquiries(){
+  const list = document.getElementById("enquiryList");
+  const {data, error} = await supabaseClient
+    .from("enquiries")
+    .select("id,wedding_date,location,guest_count,message,status,created_at,businesses(name,city)")
+    .eq("couple_id", currentUser.id)
+    .order("created_at", {ascending:false});
+
+  if(error){
+    list.innerHTML = '<div class="empty-state">We could not load your enquiries right now.</div>';
+    return;
+  }
+
+  if(!data || !data.length){
+    list.innerHTML = '<div class="empty-state">No enquiries yet. Explore the directory and contact a business when you are ready.</div>';
+    return;
+  }
+
+  list.innerHTML = data.map(item => {
+    const business = item.businesses || {};
+    return `
+      <article class="submission">
+        <div class="submission-title">${escapeHtml(business.name || "Wedding business")}</div>
+        <div class="submission-meta">
+          ${escapeHtml(business.city || "")}
+          ${item.wedding_date ? " · Wedding: " + escapeHtml(item.wedding_date) : ""}
+          ${item.status ? " · " + escapeHtml(item.status) : ""}
+        </div>
+        ${item.message ? `<p style="font-size:12px;color:#777;margin-bottom:0">${escapeHtml(item.message)}</p>` : ""}
+      </article>
+    `;
+  }).join("");
+}
+
+function escapeHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[char]));
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  if(!window.supabaseClient){
+    return;
+  }
+
+  const {data:{session}} = await supabaseClient.auth.getSession();
+
+  if(!session){
+    window.location.href = "index.html";
+    return;
+  }
+
+  const {data:profile} = await supabaseClient
+    .from("profiles")
+    .select("role,full_name")
+    .eq("id", session.user.id)
+    .single();
+
+  if(!profile || profile.role !== "couple"){
+    window.location.href = "index.html";
+    return;
+  }
+
+  currentUser = session.user;
+
+  if(profile.full_name){
+    document.getElementById("welcomeText").textContent =
+      `Welcome, ${profile.full_name}. Everything you're saving and planning, in one place.`;
+  }
+
+  document.getElementById("weddingSubmissionForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const button = event.target.querySelector("button");
+    button.disabled = true;
+    button.textContent = "SUBMITTING…";
+
+    const form = new FormData(event.target);
+
+    const {error} = await supabaseClient
+      .from("wedding_submissions")
+      .insert({
+        couple_id: currentUser.id,
+        title: form.get("title"),
+        city: form.get("city"),
+        story: form.get("story"),
+        status: "pending"
+      });
+
+    button.disabled = false;
+    button.textContent = "SUBMIT YOUR WEDDING →";
+
+    if(error){
+      showNotice("Your submission could not be sent. Please try again.");
+      return;
+    }
+
+    event.target.reset();
+    showNotice("Your wedding has been submitted for review.", true);
+    await loadSubmissions();
+  });
+
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = "index.html";
+  });
+
+  await Promise.all([loadSubmissions(), loadEnquiries()]);
+});
+</script>
+</body>
+</html>

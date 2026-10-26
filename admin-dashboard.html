@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — The Wed Tale</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+*{box-sizing:border-box}
+.admin{max-width:1350px;margin:auto;padding:65px 30px}
+.admin-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:55px}
+.admin-head h1{font-size:clamp(55px,7vw,90px)}
+.admin-subtitle{color:#777;max-width:520px;margin-top:18px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:70px}
+.stat{border:1px solid #ddd;padding:25px}
+.stat-label{font-size:9px;letter-spacing:.16em;color:#777}
+.stat-number{font-family:"Cormorant Garamond",serif;font-size:55px;margin-top:12px}
+.section{margin-top:70px}
+.heading{border-bottom:1px solid #ddd;padding-bottom:18px;margin-bottom:25px}
+.heading h2{font-size:48px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.toolbar button{border:1px solid #111;background:white;padding:10px 15px;font-size:9px;letter-spacing:.12em;cursor:pointer}
+.toolbar button.active,.toolbar button:hover{background:#111;color:#fff}
+.list{display:grid;gap:12px}
+.item{border:1px solid #ddd;padding:22px}
+.item-top{display:flex;justify-content:space-between;gap:20px;align-items:start}
+.item-title{font-family:"Cormorant Garamond",serif;font-size:31px}
+.meta{color:#777;font-size:11px;margin-top:6px}
+.badge{font-size:9px;letter-spacing:.12em;border:1px solid #ddd;padding:6px 9px;text-transform:uppercase;white-space:nowrap}
+.item-story{color:#666;font-size:12px;line-height:1.7;margin:18px 0 0;white-space:pre-wrap}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.actions button{border:1px solid #111;background:#111;color:#fff;padding:10px 14px;font-size:9px;letter-spacing:.1em;cursor:pointer}
+.actions button.secondary{background:#fff;color:#111}
+.notice{display:none;border:1px solid #ddd;padding:14px;font-size:12px;margin-bottom:20px}
+.notice.show{display:block}
+.empty{border:1px dashed #ccc;padding:40px;color:#777;font-size:13px}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:20px 30px;border-bottom:1px solid #ddd}
+.nav a{font-size:10px;letter-spacing:.15em}
+.logout{border:1px solid #111;background:#111;color:#fff;padding:10px 16px;font-size:10px;cursor:pointer}
+@media(max-width:800px){.stats{grid-template-columns:1fr}.admin-head{flex-direction:column;align-items:start}.item-top{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+<a href="index.html">← THE WED TALE</a>
+<button class="logout" id="logout">LOG OUT</button>
+</nav>
+
+<main class="admin">
+<header class="admin-head">
+<div>
+<p class="eyebrow">ADMIN PANEL</p>
+<h1>Control<br><em>the tale.</em></h1>
+<p class="admin-subtitle">Review businesses and real wedding submissions before they become part of the public platform.</p>
+</div>
+</header>
+
+<div id="notice" class="notice"></div>
+
+<section class="stats">
+<div class="stat"><div class="stat-label">PENDING BUSINESSES</div><div class="stat-number" id="businessCount">—</div></div>
+<div class="stat"><div class="stat-label">PENDING WEDDINGS</div><div class="stat-number" id="weddingCount">—</div></div>
+<div class="stat"><div class="stat-label">APPROVED BUSINESSES</div><div class="stat-number" id="approvedCount">—</div></div>
+</section>
+
+<section class="section">
+<div class="heading">
+<p class="eyebrow">BUSINESSES</p>
+<h2>Review listings.</h2>
+</div>
+<div class="toolbar">
+<button class="active" data-business-filter="pending">PENDING</button>
+<button data-business-filter="approved">APPROVED</button>
+<button data-business-filter="rejected">REJECTED</button>
+</div>
+<div id="businessList" class="list"><div class="empty">Loading businesses…</div></div>
+</section>
+
+<section class="section">
+<div class="heading">
+<p class="eyebrow">REAL WEDDINGS</p>
+<h2>Review submissions.</h2>
+</div>
+<div class="toolbar">
+<button class="active" data-wedding-filter="pending">PENDING</button>
+<button data-wedding-filter="approved">APPROVED</button>
+<button data-wedding-filter="rejected">REJECTED</button>
+</div>
+<div id="weddingList" class="list"><div class="empty">Loading submissions…</div></div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script>
+let businessFilter="pending";
+let weddingFilter="pending";
+
+function esc(v){
+ return String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function showNotice(msg){
+ const n=document.getElementById("notice");
+ n.textContent=msg;
+ n.classList.add("show");
+ setTimeout(()=>n.classList.remove("show"),3500);
+}
+
+async function loadBusinesses(){
+ const list=document.getElementById("businessList");
+ const {data,error}=await supabaseClient.from("businesses")
+   .select("id,name,category,city,description,phone,instagram,website,price_range,status,created_at")
+   .eq("status",businessFilter)
+   .order("created_at",{ascending:false});
+
+ if(error){list.innerHTML='<div class="empty">Could not load businesses. Check your admin RLS policies.</div>';return}
+ document.getElementById("businessCount").textContent = businessFilter==="pending" ? data.length : "—";
+ if(!data.length){list.innerHTML='<div class="empty">No '+businessFilter+' business listings.</div>';return}
+
+ list.innerHTML=data.map(b=>`
+ <article class="item">
+  <div class="item-top">
+   <div>
+    <div class="item-title">${esc(b.name)}</div>
+    <div class="meta">${esc(b.category||"Business")} ${b.city?"· "+esc(b.city):""} ${b.price_range?"· "+esc(b.price_range):""}</div>
+   </div>
+   <span class="badge">${esc(b.status)}</span>
+  </div>
+  ${b.description?`<div class="item-story">${esc(b.description)}</div>`:""}
+  <div class="actions">
+   ${b.status!=="approved"?`<button onclick="setBusinessStatus('${b.id}','approved')">APPROVE</button>`:""}
+   ${b.status!=="rejected"?`<button class="secondary" onclick="setBusinessStatus('${b.id}','rejected')">REJECT</button>`:""}
+   ${b.status!=="pending"?`<button class="secondary" onclick="setBusinessStatus('${b.id}','pending')">MOVE TO PENDING</button>`:""}
+  </div>
+ </article>`).join("");
+}
+
+async function setBusinessStatus(id,status){
+ const {error}=await supabaseClient.from("businesses").update({status,updated_at:new Date().toISOString()}).eq("id",id);
+ if(error){showNotice("Could not update business status.");return}
+ showNotice("Business status updated.");
+ await refresh();
+}
+
+async function loadWeddings(){
+ const list=document.getElementById("weddingList");
+ const {data,error}=await supabaseClient.from("wedding_submissions")
+   .select("id,title,city,story,status,created_at")
+   .eq("status",weddingFilter)
+   .order("created_at",{ascending:false});
+
+ if(error){list.innerHTML='<div class="empty">Could not load wedding submissions. Check your admin RLS policies.</div>';return}
+ document.getElementById("weddingCount").textContent = weddingFilter==="pending" ? data.length : "—";
+ if(!data.length){list.innerHTML='<div class="empty">No '+weddingFilter+' wedding submissions.</div>';return}
+
+ list.innerHTML=data.map(w=>`
+ <article class="item">
+  <div class="item-top">
+   <div>
+    <div class="item-title">${esc(w.title||"Untitled wedding")}</div>
+    <div class="meta">${esc(w.city||"")} · ${new Date(w.created_at).toLocaleDateString()}</div>
+   </div>
+   <span class="badge">${esc(w.status)}</span>
+  </div>
+  ${w.story?`<div class="item-story">${esc(w.story)}</div>`:""}
+  <div class="actions">
+   ${w.status!=="approved"?`<button onclick="setWeddingStatus('${w.id}','approved')">APPROVE</button>`:""}
+   ${w.status!=="rejected"?`<button class="secondary" onclick="setWeddingStatus('${w.id}','rejected')">REJECT</button>`:""}
+   ${w.status!=="pending"?`<button class="secondary" onclick="setWeddingStatus('${w.id}','pending')">MOVE TO PENDING</button>`:""}
+  </div>
+ </article>`).join("");
+}
+
+async function setWeddingStatus(id,status){
+ const {error}=await supabaseClient.from("wedding_submissions").update({status}).eq("id",id);
+ if(error){showNotice("Could not update wedding status.");return}
+ showNotice("Wedding submission updated.");
+ await refresh();
+}
+
+async function refresh(){
+ await Promise.all([loadBusinesses(),loadWeddings()]);
+ const {count:approved}=await supabaseClient.from("businesses").select("*",{count:"exact",head:true}).eq("status","approved");
+ document.getElementById("approvedCount").textContent=approved ?? "—";
+}
+
+document.querySelectorAll("[data-business-filter]").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  document.querySelectorAll("[data-business-filter]").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+  businessFilter=btn.dataset.businessFilter;
+  loadBusinesses();
+ });
+});
+document.querySelectorAll("[data-wedding-filter]").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  document.querySelectorAll("[data-wedding-filter]").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+  weddingFilter=btn.dataset.weddingFilter;
+  loadWeddings();
+ });
+});
+
+document.getElementById("logout").addEventListener("click",async()=>{
+ await supabaseClient.auth.signOut();
+ window.location.href="index.html";
+});
+
+document.addEventListener("DOMContentLoaded",async()=>{
+ if(!window.supabaseClient)return;
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session){window.location.href="index.html";return}
+ const {data:profile}=await supabaseClient.from("profiles").select("role").eq("id",session.user.id).single();
+ if(!profile || profile.role!=="admin"){window.location.href="index.html";return}
+ await refresh();
+});
+</script>
+</body>
+</html>

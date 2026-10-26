@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Business Dashboard — The Wed Tale</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .dashboard {
+            max-width: 1300px;
+            margin: auto;
+            padding: 70px 30px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 30px;
+            margin-bottom: 55px;
+        }
+
+        .dashboard-header h1 {
+            font-size: clamp(55px, 7vw, 95px);
+        }
+
+        .dashboard-subtitle {
+            margin-top: 20px;
+            color: #777;
+            max-width: 500px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .dashboard-card {
+            min-height: 260px;
+            padding: 30px;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .dashboard-card-number {
+            font-size: 9px;
+            color: #888;
+            letter-spacing: .2em;
+        }
+
+        .dashboard-card h2 {
+            font-size: 38px;
+        }
+
+        .dashboard-card p {
+            color: #777;
+            font-size: 12px;
+        }
+
+        .dashboard-card button {
+            width: fit-content;
+            border: 0;
+            border-bottom: 1px solid #111;
+            background: transparent;
+            padding: 0 0 4px;
+            font-size: 11px;
+            color: #111;
+            cursor: pointer;
+        }
+
+        .dashboard-section {
+            margin-top: 70px;
+        }
+
+        .dashboard-section-heading {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-section-heading h2 {
+            font-size: 48px;
+        }
+
+        .status-box {
+            border: 1px solid #ddd;
+            padding: 30px;
+        }
+
+        .status-label {
+            font-size: 9px;
+            letter-spacing: .2em;
+            color: #888;
+        }
+
+        .status-value {
+            margin-top: 10px;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 36px;
+        }
+
+        .empty-state {
+            border: 1px dashed #ccc;
+            padding: 45px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .dashboard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .dashboard-nav a {
+            font-size: 10px;
+            letter-spacing: .15em;
+        }
+
+        .logout-button {
+            border: 1px solid #111;
+            background: #111;
+            color: white;
+            padding: 10px 16px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        /* =========================
+           EDITOR
+        ========================= */
+
+        .editor {
+            border: 1px solid #ddd;
+            padding: 35px;
+            display: none;
+        }
+
+        .editor.open {
+            display: block;
+        }
+
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .editor-field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .editor-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .editor-field label {
+            font-size: 9px;
+            letter-spacing: .15em;
+            color: #777;
+            text-transform: uppercase;
+        }
+
+        .editor-field input,
+        .editor-field textarea,
+        .editor-field select {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            background: #fff;
+            padding: 14px;
+            font: 12px "DM Sans", sans-serif;
+            color: #111;
+        }
+
+        .editor-field textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .save-button {
+            border: 1px solid #111;
+            background: #111;
+            color: #fff;
+            padding: 14px 22px;
+            font: 600 11px "DM Sans", sans-serif;
+            cursor: pointer;
+        }
+
+        .cancel-button {
+            border: 0;
+            border-bottom: 1px solid #111;
+            background: transparent;
+            padding: 0 0 4px;
+            font: 11px "DM Sans", sans-serif;
+            cursor: pointer;
+        }
+
+        .editor-message {
+            font-size: 11px;
+            color: #555;
+            padding: 12px;
+            background: #f5f5f5;
+            display: none;
+            line-height: 1.6;
+        }
+
+        .editor-message.show {
+            display: block;
+        }
+
+        .business-details {
+            line-height: 1.9;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .business-details strong {
+            color: #111;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 30px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            text-transform: capitalize;
+        }
+
+        @media(max-width: 800px) {
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .editor {
+                padding: 25px;
+            }
+
+            .editor-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-field.full {
+                grid-column: auto;
+            }
+
+            .dashboard-nav {
+                padding: 18px 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<nav class="dashboard-nav">
+
+    <a href="index.html">
+        ← THE WED TALE
+    </a>
+
+    <button
+        class="logout-button"
+        id="logoutButton"
+    >
+        LOG OUT
+    </button>
+
+</nav>
+
+
+<main class="dashboard">
+
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="dashboard-header">
+
+        <div>
+
+            <p class="eyebrow">
+                BUSINESS DASHBOARD
+            </p>
+
+            <h1>
+                Your<br>
+                <em>business.</em>
+            </h1>
+
+            <p
+                class="dashboard-subtitle"
+                id="welcomeText"
+            >
+                Manage your listing and connect
+                with couples planning their wedding.
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         DASHBOARD CARDS
+    ========================== -->
+
+    <section class="dashboard-grid">
+
+
+        <article class="dashboard-card">
+
+            <span class="dashboard-card-number">
+                01
+            </span>
+
+            <h2>
+                Your listing
+            </h2>
+
+            <p>
+                Create and manage your public
+                business profile.
+            </p>
+
+            <button id="manageListingButton">
+                Manage listing →
+            </button>
+
+        </article>
+
+
+        <article class="dashboard-card">
+
+            <span class="dashboard-card-number">
+                02
+            </span>
+
+            <h2>
+                Enquiries
+            </h2>
+
+            <p>
+                See enquiries from couples interested
+                in your services.
+            </p>
+
+            <button id="viewEnquiriesButton">
+                View enquiries →
+            </button>
+
+        </article>
+
+
+        <article class="dashboard-card">
+
+            <span class="dashboard-card-number">
+                03
+            </span>
+
+            <h2>
+                Profile
+            </h2>
+
+            <p>
+                Keep your contact information and
+                business details updated.
+            </p>
+
+            <button id="editProfileButton">
+                Edit profile →
+            </button>
+
+        </article>
+
+
+    </section>
+
+
+    <!-- =========================
+         LISTING STATUS
+    ========================== -->
+
+    <section class="dashboard-section">
+
+        <div class="dashboard-section-heading">
+
+            <p class="eyebrow">
+                LISTING STATUS
+            </p>
+
+            <h2>
+                Your visibility.
+            </h2>
+
+        </div>
+
+
+        <div class="status-box">
+
+            <div class="status-label">
+                CURRENT STATUS
+            </div>
+
+            <div
+                class="status-value status-pending"
+                id="listingStatus"
+            >
+                Checking...
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         BUSINESS LISTING
+    ========================== -->
+
+    <section class="dashboard-section">
+
+        <div class="dashboard-section-heading">
+
+            <p class="eyebrow">
+                BUSINESS LISTING
+            </p>
+
+            <h2>
+                Your listing.
+            </h2>
+
+        </div>
+
+
+        <!-- Current listing -->
+
+        <div
+            class="empty-state"
+            id="businessInfo"
+        >
+            Loading your business information...
+        </div>
+
+
+        <!-- =========================
+             EDITOR
+        ========================== -->
+
+        <div
+            class="editor"
+            id="businessEditor"
+        >
+
+            <div class="editor-grid">
+
+
+                <div class="editor-field">
+
+                    <label for="businessName">
+                        Business name
+                    </label>
+
+                    <input
+                        id="businessName"
+                        type="text"
+                        placeholder="Your business name"
+                    >
+
+                </div>
+
+
+                <div class="editor-field">
+
+                    <label for="businessCategory">
+                        Category
+                    </label>
+
+                    <select id="businessCategory">
+
+                        <option value="">
+                            Select category
+                        </option>
+
+                        <option value="Venue">
+                            Venue
+                        </option>
+
+                        <option value="Wedding Planner">
+                            Wedding Planner
+                        </option>
+
+                        <option value="Photographer">
+                            Photographer
+                        </option>
+
+                        <option value="Videographer">
+                            Videographer
+                        </option>
+
+                        <option value="Decor">
+                            Decor
+                        </option>
+
+                        <option value="Makeup Artist">
+                            Makeup Artist
+                        </option>
+
+                        <option value="Mehendi Artist">
+                            Mehendi Artist
+                        </option>
+
+                        <option value="Bridal Wear">
+                            Bridal Wear
+                        </option>
+
+                        <option value="Groom Wear">
+                            Groom Wear
+                        </option>
+
+                        <option value="Jewellery">
+                            Jewellery
+                        </option>
+
+                        <option value="Catering">
+                            Catering
+                        </option>
+
+                        <option value="Invitation">
+                            Invitation
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="editor-field">
+
+                    <label for="businessCity">
+                        City
+                    </label>
+
+                    <input
+                        id="businessCity"
+                        type="text"
+                        placeholder="Vadodara"
+                    >
+
+                </div>
+
+
+                <div class="editor-field">
+
+                    <label for="businessPhone">
+                        Phone
+                    </label>
+
+                    <input
+                        id="businessPhone"
+                        type="tel"
+                        placeholder="+91..."
+                    >
+
+                </div>
+
+
+                <div class="editor-field">
+
+                    <label for="businessInstagram">
+                        Instagram
+                    </label>
+
+                    <input
+                        id="businessInstagram"
+                        type="text"
+                        placeholder="@yourbusiness"
+                    >
+
+                </div>
+
+
+                <div class="editor-field">
+
+                    <label for="businessWebsite">
+                        Website
+                    </label>
+
+                    <input
+                        id="businessWebsite"
+                        type="url"
+                        placeholder="https://..."
+                    >
+
+                </div>
+
+
+                <div class="editor-field">
+
+                    <label for="businessPrice">
+                        Price range
+                    </label>
+
+                    <select id="businessPrice">
+
+                        <option value="">
+                            Select price range
+                        </option>
+
+                        <option value="₹">
+                            ₹
+                        </option>
+
+                        <option value="₹₹">
+                            ₹₹
+                        </option>
+
+                        <option value="₹₹₹">
+                            ₹₹₹
+                        </option>
+
+                        <option value="₹₹₹₹">
+                            ₹₹₹₹
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="editor-field full">
+
+                    <label for="businessDescription">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="businessDescription"
+                        placeholder="Tell couples about your business, services and experience."
+                    ></textarea>
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="editor-message"
+                id="editorMessage"
+            ></div>
+
+
+            <div class="editor-actions">
+
+                <button
+                    class="save-button"
+                    id="saveBusinessButton"
+                >
+                    SAVE LISTING
+                </button>
+
+                <button
+                    class="cancel-button"
+                    id="cancelEditorButton"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =========================
+         ENQUIRIES
+    ========================== -->
+
+    <section
+        class="dashboard-section"
+        id="enquiriesSection"
+    >
+
+        <div class="dashboard-section-heading">
+
+            <p class="eyebrow">
+                COUPLE ENQUIRIES
+            </p>
+
+            <h2>
+                Your enquiries.
+            </h2>
+
+        </div>
+
+
+        <div
+            class="empty-state"
+            id="enquiriesList"
+        >
+            Enquiries will appear here when couples contact your business.
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+
+        /* =============================================
+           ELEMENTS
+        ============================================= */
+
+        const welcomeText =
+            document.getElementById("welcomeText");
+
+        const listingStatus =
+            document.getElementById("listingStatus");
+
+        const businessInfo =
+            document.getElementById("businessInfo");
+
+        const businessEditor =
+            document.getElementById("businessEditor");
+
+        const editorMessage =
+            document.getElementById("editorMessage");
+
+        const saveButton =
+            document.getElementById("saveBusinessButton");
+
+        const cancelButton =
+            document.getElementById("cancelEditorButton");
+
+        const manageListingButton =
+            document.getElementById("manageListingButton");
+
+        const editProfileButton =
+            document.getElementById("editProfileButton");
+
+        const viewEnquiriesButton =
+            document.getElementById("viewEnquiriesButton");
+
+        const enquiriesSection =
+            document.getElementById("enquiriesSection");
+
+        const enquiriesList =
+            document.getElementById("enquiriesList");
+
+        const logoutButton =
+            document.getElementById("logoutButton");
+
+
+        /* =============================================
+           FORM ELEMENTS
+        ============================================= */
+
+        const businessName =
+            document.getElementById("businessName");
+
+        const businessCategory =
+            document.getElementById("businessCategory");
+
+        const businessCity =
+            document.getElementById("businessCity");
+
+        const businessDescription =
+            document.getElementById("businessDescription");
+
+        const businessPhone =
+            document.getElementById("businessPhone");
+
+        const businessInstagram =
+            document.getElementById("businessInstagram");
+
+        const businessWebsite =
+            document.getElementById("businessWebsite");
+
+        const businessPrice =
+            document.getElementById("businessPrice");
+
+
+        /* =============================================
+           STATE
+        ============================================= */
+
+        let currentSession = null;
+        let currentBusiness = null;
+
+
+        /* =============================================
+           SUPABASE CHECK
+        ============================================= */
+
+        if (
+            typeof supabaseClient === "undefined" ||
+            !supabaseClient
+        ) {
+
+            businessInfo.textContent =
+                "Supabase is not configured.";
+
+            return;
+        }
+
+
+        /* =============================================
+           GET SESSION
+        ============================================= */
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } =
+            await supabaseClient.auth.getSession();
+
+
+        if (sessionError || !sessionData.session) {
+
+            window.location.href =
+                "index.html";
+
+            return;
+        }
+
+
+        currentSession =
+            sessionData.session;
+
+
+        /* =============================================
+           LOAD PROFILE
+        ============================================= */
+
+        const {
+            data: profile,
+            error: profileError
+        } =
+            await supabaseClient
+                .from("profiles")
+                .select("role, full_name")
+                .eq("id", currentSession.user.id)
+                .single();
+
+
+        if (
+            profileError ||
+            !profile ||
+            profile.role !== "business"
+        ) {
+
+            window.location.href =
+                "index.html";
+
+            return;
+        }
+
+
+        /* =============================================
+           WELCOME
+        ============================================= */
+
+        if (
+            welcomeText &&
+            profile.full_name
+        ) {
+
+            welcomeText.textContent =
+                `Welcome, ${profile.full_name}. Manage your listing and connect with couples planning their wedding.`;
+
+        }
+
+
+        /* =============================================
+           LOAD BUSINESS
+        ============================================= */
+
+        await loadBusiness();
+
+
+        /* =============================================
+           LOAD ENQUIRIES
+        ============================================= */
+
+        await loadEnquiries();
+
+
+        /* =============================================
+           LOAD BUSINESS FUNCTION
+        ============================================= */
+
+        async function loadBusiness() {
+
+            const {
+                data: business,
+                error
+            } =
+                await supabaseClient
+                    .from("businesses")
+                    .select("*")
+                    .eq(
+                        "owner_id",
+                        currentSession.user.id
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(1)
+                    .maybeSingle();
+
+
+            if (error) {
+
+                console.error(error);
+
+                listingStatus.textContent =
+                    "Unable to load";
+
+                businessInfo.textContent =
+                    "We couldn't load your business listing. Please try again.";
+
+                return;
+            }
+
+
+            currentBusiness =
+                business;
+
+
+            if (!business) {
+
+                listingStatus.textContent =
+                    "No listing yet";
+
+                businessInfo.innerHTML = `
+                    You haven't created a business listing yet.
+                    <br><br>
+                    Use <strong>Manage listing</strong> above to create your listing.
+                `;
+
+                return;
+            }
+
+
+            /* =========================================
+               SHOW STATUS
+            ========================================= */
+
+            listingStatus.textContent =
+                business.status || "pending";
+
+
+            /* =========================================
+               FILL FORM
+            ========================================= */
+
+            fillForm(business);
+
+
+            /* =========================================
+               SHOW BUSINESS
+            ========================================= */
+
+            renderBusiness(business);
+
+        }
+
+
+        /* =============================================
+           FILL FORM
+        ============================================= */
+
+        function fillForm(business) {
+
+            businessName.value =
+                business.name || "";
+
+            businessCategory.value =
+                business.category || "";
+
+            businessCity.value =
+                business.city || "";
+
+            businessDescription.value =
+                business.description || "";
+
+            businessPhone.value =
+                business.phone || "";
+
+            businessInstagram.value =
+                business.instagram || "";
+
+            businessWebsite.value =
+                business.website || "";
+
+            businessPrice.value =
+                business.price_range || "";
+
+        }
+
+
+        /* =============================================
+           RENDER BUSINESS
+        ============================================= */
+
+        function renderBusiness(business) {
+
+            const website =
+                business.website
+                    ? `
+                        <br>
+                        <a
+                            href="${escapeAttribute(business.website)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Visit website →
+                        </a>
+                    `
+                    : "";
+
+
+            businessInfo.innerHTML = `
+
+                <div class="business-details">
+
+                    <strong>
+                        ${escapeHtml(
+                            business.name || "Your business"
+                        )}
+                    </strong>
+
+                    <br><br>
+
+                    ${escapeHtml(
+                        business.category ||
+                        "Category not set"
+                    )}
+
+                    <br>
+
+                    ${escapeHtml(
+                        business.city ||
+                        "City not set"
+                    )}
+
+                    <br><br>
+
+                    ${
+                        business.description
+                            ? escapeHtml(
+                                business.description
+                              )
+                            : "No description added yet."
+                    }
+
+                    <br><br>
+
+                    ${
+                        business.phone
+                            ? "Phone: " +
+                              escapeHtml(
+                                  business.phone
+                              )
+                            : ""
+                    }
+
+                    ${
+                        business.instagram
+                            ? "<br>Instagram: " +
+                              escapeHtml(
+                                  business.instagram
+                              )
+                            : ""
+                    }
+
+                    ${
+                        business.price_range
+                            ? "<br>Price: " +
+                              escapeHtml(
+                                  business.price_range
+                              )
+                            : ""
+                    }
+
+                    ${website}
+
+                </div>
+
+            `;
+        }
+
+
+        /* =============================================
+           OPEN EDITOR
+        ============================================= */
+
+        function openEditor() {
+
+            businessEditor.classList.add("open");
+
+            businessEditor.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }
+
+
+        /* =============================================
+           CLOSE EDITOR
+        ============================================= */
+
+        function closeEditor() {
+
+            businessEditor.classList.remove("open");
+
+            editorMessage.classList.remove("show");
+
+        }
+
+
+        /* =============================================
+           BUTTON EVENTS
+        ============================================= */
+
+manageListingButton.addEventListener(
+    "click",
+    () => {
+        window.location.href = "business-profile.html";
+    }
+);
+
+editProfileButton.addEventListener(
+    "click",
+    () => {
+        window.location.href = "business-profile.html";
+    }
+);
+
+
+        cancelButton.addEventListener(
+            "click",
+            closeEditor
+        );
+
+
+        viewEnquiriesButton.addEventListener(
+            "click",
+            () => {
+
+                enquiriesSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }
+        );
+
+
+        /* =============================================
+           SAVE BUSINESS
+        ============================================= */
+
+        saveButton.addEventListener(
+            "click",
+            async () => {
+
+                const name =
+                    businessName.value.trim();
+
+                const category =
+                    businessCategory.value.trim();
+
+                const city =
+                    businessCity.value.trim();
+
+                const description =
+                    businessDescription.value.trim();
+
+                const phone =
+                    businessPhone.value.trim();
+
+                const instagram =
+                    businessInstagram.value.trim();
+
+                const website =
+                    businessWebsite.value.trim();
+
+                const priceRange =
+                    businessPrice.value.trim();
+
+
+                /* -------------------------------------
+                   VALIDATION
+                ------------------------------------- */
+
+                if (!name) {
+
+                    showEditorMessage(
+                        "Please enter your business name."
+                    );
+
+                    businessName.focus();
+
+                    return;
+                }
+
+
+                if (!category) {
+
+                    showEditorMessage(
+                        "Please select a business category."
+                    );
+
+                    businessCategory.focus();
+
+                    return;
+                }
+
+
+                if (!city) {
+
+                    showEditorMessage(
+                        "Please enter your city."
+                    );
+
+                    businessCity.focus();
+
+                    return;
+                }
+
+
+                /* -------------------------------------
+                   LOADING
+                ------------------------------------- */
+
+                saveButton.disabled = true;
+
+                saveButton.textContent =
+                    "SAVING...";
+
+
+                editorMessage.classList.remove(
+                    "show"
+                );
+
+
+                try {
+
+                    const payload = {
+
+                        owner_id:
+                            currentSession.user.id,
+
+                        name,
+
+                        category,
+
+                        city,
+
+                        description,
+
+                        phone,
+
+                        instagram,
+
+                        website,
+
+                        price_range:
+
+                            priceRange
+
+                    };
+
+
+                    let result;
+
+
+                    /* =================================
+                       UPDATE EXISTING BUSINESS
+                    ================================= */
+
+                    if (currentBusiness?.id) {
+
+                        result =
+                            await supabaseClient
+                                .from("businesses")
+                                .update({
+
+                                    name,
+
+                                    category,
+
+                                    city,
+
+                                    description,
+
+                                    phone,
+
+                                    instagram,
+
+                                    website,
+
+                                    price_range:
+                                        priceRange,
+
+                                    updated_at:
+                                        new Date()
+                                            .toISOString()
+
+                                })
+                                .eq(
+                                    "id",
+                                    currentBusiness.id
+                                )
+                                .eq(
+                                    "owner_id",
+                                    currentSession.user.id
+                                )
+                                .select()
+                                .single();
+
+                    }
+
+
+                    /* =================================
+                       CREATE NEW BUSINESS
+                    ================================= */
+
+                    else {
+
+                        result =
+                            await supabaseClient
+                                .from("businesses")
+                                .insert(
+                                    payload
+                                )
+                                .select()
+                                .single();
+
+                    }
+
+
+                    if (result.error) {
+
+                        throw result.error;
+
+                    }
+
+
+                    currentBusiness =
+                        result.data;
+
+
+                    /* =================================
+                       SUCCESS
+                    ================================= */
+
+                    listingStatus.textContent =
+                        currentBusiness.status ||
+                        "pending";
+
+
+                    fillForm(
+                        currentBusiness
+                    );
+
+                    renderBusiness(
+                        currentBusiness
+                    );
+
+
+                    showEditorMessage(
+                        "Your business listing has been saved successfully."
+                    );
+
+
+                    businessEditor.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Save business error:",
+                        error
+                    );
+
+
+                    showEditorMessage(
+                        error?.message ||
+                        "We couldn't save your listing. Please try again."
+                    );
+
+                }
+
+                finally {
+
+                    saveButton.disabled =
+                        false;
+
+                    saveButton.textContent =
+                        "SAVE LISTING";
+
+                }
+
+            }
+        );
+
+
+        /* =============================================
+           EDITOR MESSAGE
+        ============================================= */
+
+        function showEditorMessage(message) {
+
+            editorMessage.textContent =
+                message;
+
+            editorMessage.classList.add(
+                "show"
+            );
+
+        }
+
+
+        /* =============================================
+           LOAD ENQUIRIES
+        ============================================= */
+
+        async function loadEnquiries() {
+
+            if (!enquiriesList) {
+                return;
+            }
+
+
+            /*
+             If the business hasn't been created yet,
+             there cannot be enquiries.
+            */
+
+            if (!currentBusiness?.id) {
+
+                enquiriesList.textContent =
+                    "Create your business listing first. Enquiries will appear here when couples contact your business.";
+
+                return;
+            }
+
+
+            const {
+                data: enquiries,
+                error
+            } =
+                await supabaseClient
+                    .from("enquiries")
+                    .select(`
+                        id,
+                        wedding_date,
+                        location,
+                        guest_count,
+                        message,
+                        status,
+                        created_at
+                    `)
+                    .eq(
+                        "business_id",
+                        currentBusiness.id
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    );
+
+
+            if (error) {
+
+                console.error(
+                    "Enquiries error:",
+                    error
+                );
+
+                enquiriesList.textContent =
+                    "Unable to load enquiries.";
+
+                return;
+            }
+
+
+            if (
+                !enquiries ||
+                enquiries.length === 0
+            ) {
+
+                enquiriesList.textContent =
+                    "No enquiries yet. When couples contact your business, their enquiries will appear here.";
+
+                return;
+            }
+
+
+            enquiriesList.innerHTML =
+                enquiries
+                    .map(
+                        enquiry => `
+
+                            <div
+                                style="
+                                    border-bottom:1px solid #ddd;
+                                    padding:20px 0;
+                                "
+                            >
+
+                                <strong>
+                                    ${
+                                        escapeHtml(
+                                            enquiry.status ||
+                                            "new"
+                                        )
+                                    }
+                                </strong>
+
+                                <br><br>
+
+                                ${
+                                    enquiry.wedding_date
+                                        ? "Wedding date: " +
+                                          escapeHtml(
+                                              enquiry.wedding_date
+                                          ) +
+                                          "<br>"
+                                        : ""
+                                }
+
+                                ${
+                                    enquiry.location
+                                        ? "Location: " +
+                                          escapeHtml(
+                                              enquiry.location
+                                          ) +
+                                          "<br>"
+                                        : ""
+                                }
+
+                                ${
+                                    enquiry.guest_count
+                                        ? "Guests: " +
+                                          escapeHtml(
+                                              enquiry.guest_count
+                                          ) +
+                                          "<br>"
+                                        : ""
+                                }
+
+                                ${
+                                    enquiry.message
+                                        ? "<br>" +
+                                          escapeHtml(
+                                              enquiry.message
+                                          )
+                                        : ""
+                                }
+
+                            </div>
+
+                        `
+                    )
+                    .join("");
+
+        }
+
+
+        /* =============================================
+           LOGOUT
+        ============================================= */
+
+        logoutButton.addEventListener(
+            "click",
+            async () => {
+
+                logoutButton.disabled =
+                    true;
+
+                logoutButton.textContent =
+                    "LOGGING OUT...";
+
+
+                await supabaseClient.auth.signOut();
+
+
+                window.location.href =
+                    "index.html";
+
+            }
+        );
+
+
+        /* =============================================
+           SAFE HTML
+        ============================================= */
+
+        function escapeHtml(value) {
+
+            return String(value)
+
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+
+        }
+
+
+        function escapeAttribute(value) {
+
+            return escapeHtml(value);
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,1335 @@
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: #ffffff;
+    color: #111111;
+
+    font-family: "DM Sans", sans-serif;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    overflow-x: hidden;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* =====================================================
+   TYPOGRAPHY
+===================================================== */
+
+h1,
+h2,
+h3 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 400;
+}
+
+h1 {
+    font-size: clamp(60px, 8vw, 120px);
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+}
+
+h2 {
+    font-size: clamp(48px, 6vw, 82px);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+}
+
+h3 {
+    font-size: 30px;
+    line-height: 1;
+}
+
+em {
+    font-style: italic;
+}
+
+.eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #777777;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background: rgba(255,255,255,0.96);
+
+    border-bottom: 1px solid #e8e8e8;
+
+    backdrop-filter: blur(10px);
+}
+
+.header-inner {
+    height: 72px;
+
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 0 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    flex-shrink: 0;
+}
+
+.brand-mark {
+    width: 30px;
+    height: 30px;
+
+    border: 1px solid #111111;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 7px;
+    letter-spacing: 0.05em;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1;
+}
+
+.brand-text strong {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+}
+
+.brand-text small {
+    margin-top: 5px;
+
+    font-size: 7px;
+    letter-spacing: 0.25em;
+
+    color: #777777;
+}
+
+.desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+
+    margin-left: auto;
+    margin-right: 40px;
+}
+
+.desktop-nav a {
+    font-size: 11px;
+    color: #555555;
+
+    transition: color 0.2s ease;
+}
+
+.desktop-nav a:hover {
+    color: #111111;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-button,
+.menu-button {
+    width: 34px;
+    height: 34px;
+
+    border: 0;
+    background: transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+}
+
+.menu-button {
+    display: none;
+}
+
+
+/* =====================================================
+   MOBILE MENU
+===================================================== */
+
+.mobile-menu {
+    display: none;
+
+    border-top: 1px solid #e8e8e8;
+
+    padding: 20px 24px;
+
+    background: #ffffff;
+}
+
+.mobile-menu.open {
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-menu a,
+.mobile-account-button {
+    padding: 15px 0;
+
+    border: 0;
+    border-bottom: 1px solid #eeeeee;
+
+    background: transparent;
+
+    text-align: left;
+
+    font-size: 14px;
+}
+
+.mobile-account-button {
+    color: #111111;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 46px;
+
+    padding: 0 22px;
+
+    border: 1px solid #111111;
+
+    background: #111111;
+    color: #ffffff;
+
+    font-size: 11px;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.primary-btn:hover {
+    background: #ffffff;
+    color: #111111;
+}
+
+.secondary-btn {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 46px;
+
+    padding: 0 22px;
+
+    border-bottom: 1px solid #111111;
+
+    font-size: 11px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.text-link {
+    font-size: 11px;
+
+    border-bottom: 1px solid #111111;
+
+    padding-bottom: 3px;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+    min-height: calc(100vh - 72px);
+
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 90px 32px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 70px;
+
+    align-items: center;
+}
+
+.hero-content {
+    max-width: 700px;
+}
+
+.hero-content .eyebrow {
+    margin-bottom: 28px;
+}
+
+.hero-description {
+    max-width: 450px;
+
+    margin-top: 35px;
+
+    color: #555555;
+
+    font-size: 15px;
+
+    line-height: 1.7;
+}
+
+.hero-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 22px;
+
+    margin-top: 35px;
+}
+
+.hero-visual {
+    display: grid;
+
+    grid-template-columns: 1.5fr 0.75fr 0.75fr;
+
+    gap: 14px;
+
+    align-items: start;
+}
+
+.hero-card {
+    border: 1px solid #dddddd;
+
+    background: #ffffff;
+}
+
+.hero-card-large {
+    grid-row: span 2;
+}
+
+.placeholder-image {
+    height: 420px;
+
+    background: #111111;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+
+    font-size: 9px;
+    letter-spacing: 0.25em;
+}
+
+.placeholder-image.light {
+    height: 230px;
+
+    background: #f1f1f1;
+
+    color: #999999;
+}
+
+.hero-card-caption {
+    padding: 20px;
+}
+
+.hero-card-caption span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 8px;
+    letter-spacing: 0.2em;
+
+    color: #888888;
+}
+
+.hero-card-caption strong {
+    font-family: "Cormorant Garamond", serif;
+
+    font-size: 22px;
+
+    font-weight: 400;
+}
+
+.hero-card-small strong {
+    display: block;
+
+    padding: 15px;
+
+    font-family: "Cormorant Garamond", serif;
+
+    font-size: 22px;
+
+    font-weight: 400;
+}
+
+
+/* =====================================================
+   CATEGORY STRIP
+===================================================== */
+
+.category-strip {
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    max-width: 1400px;
+
+    margin: 0 auto;
+}
+
+.category-strip a {
+    min-height: 100px;
+
+    padding: 25px;
+
+    border-right: 1px solid #dddddd;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    transition: background 0.2s ease;
+}
+
+.category-strip a:last-child {
+    border-right: 0;
+}
+
+.category-strip a:hover {
+    background: #f5f5f5;
+}
+
+.category-strip span {
+    font-size: 8px;
+    color: #888888;
+}
+
+
+/* =====================================================
+   CONTENT SECTIONS
+===================================================== */
+
+.content-section {
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 120px 32px;
+}
+
+.grey-section {
+    max-width: none;
+
+    background: #f6f6f6;
+
+    padding-left: max(32px, calc((100vw - 1336px) / 2));
+    padding-right: max(32px, calc((100vw - 1336px) / 2));
+}
+
+.section-heading {
+    display: flex;
+
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    margin-bottom: 55px;
+}
+
+
+/* =====================================================
+   LISTINGS
+===================================================== */
+
+.listing-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+}
+
+.listing-card {
+    border: 1px solid #dddddd;
+
+    background: #ffffff;
+}
+
+.listing-image {
+    height: 360px;
+
+    background: #111111;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+    letter-spacing: 0.25em;
+}
+
+.listing-info {
+    padding: 24px;
+}
+
+.listing-location {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #888888;
+
+    font-size: 8px;
+
+    letter-spacing: 0.2em;
+}
+
+.listing-info h3 {
+    margin-bottom: 12px;
+}
+
+.listing-info p {
+    color: #666666;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   VENDORS
+===================================================== */
+
+.vendor-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    border-top: 1px solid #cccccc;
+    border-left: 1px solid #cccccc;
+}
+
+.vendor-card {
+    min-height: 360px;
+
+    padding: 25px;
+
+    border-right: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+}
+
+.vendor-number {
+    font-size: 8px;
+
+    color: #888888;
+}
+
+.vendor-category {
+    font-size: 8px;
+
+    letter-spacing: 0.2em;
+
+    color: #888888;
+}
+
+.vendor-card h3 {
+    margin-top: 15px;
+
+    font-size: 34px;
+}
+
+.vendor-card p {
+    margin-top: 15px;
+
+    color: #666666;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   WEDDINGS
+===================================================== */
+
+.wedding-grid {
+    display: grid;
+
+    grid-template-columns: 1.5fr 1fr 1fr;
+
+    gap: 16px;
+}
+
+.wedding-card {
+    border: 1px solid #dddddd;
+}
+
+.wedding-image {
+    height: 390px;
+
+    background: #111111;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+    letter-spacing: 0.2em;
+}
+
+.wedding-info {
+    padding: 22px;
+}
+
+.wedding-info span {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #888888;
+
+    font-size: 8px;
+
+    letter-spacing: 0.18em;
+}
+
+.wedding-info h3 {
+    margin-bottom: 18px;
+}
+
+.wedding-info a {
+    font-size: 10px;
+
+    border-bottom: 1px solid #111111;
+}
+
+
+/* =====================================================
+   JOURNAL
+===================================================== */
+
+.journal-section {
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 120px 32px;
+}
+
+.journal-heading {
+    display: flex;
+
+    align-items: flex-end;
+    justify-content: space-between;
+
+    padding-bottom: 50px;
+
+    border-bottom: 1px solid #dddddd;
+}
+
+.journal-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.journal-card {
+    min-height: 300px;
+
+    padding: 30px 25px;
+
+    border-right: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: space-between;
+}
+
+.journal-card:first-child {
+    border-left: 1px solid #dddddd;
+}
+
+.journal-card > span {
+    font-size: 8px;
+
+    color: #888888;
+}
+
+.journal-card h3 {
+    font-size: 35px;
+}
+
+.journal-card a {
+    font-size: 10px;
+
+    border-bottom: 1px solid #111111;
+
+    width: fit-content;
+}
+
+
+/* =====================================================
+   JOIN SECTION
+===================================================== */
+
+.join-section {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    background: #111111;
+
+    color: #ffffff;
+}
+
+.join-column {
+    min-height: 500px;
+
+    padding: 90px max(32px, calc((100vw - 1336px) / 2));
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    justify-content: center;
+}
+
+.join-column + .join-column {
+    border-left: 1px solid #444444;
+
+    padding-left: max(32px, calc((100vw - 1336px) / 2));
+}
+
+.join-column .eyebrow {
+    color: #999999;
+}
+
+.join-column h2 {
+    margin-top: 25px;
+
+    font-size: clamp(50px, 6vw, 82px);
+}
+
+.join-column p:not(.eyebrow) {
+    max-width: 430px;
+
+    margin-top: 25px;
+
+    color: #bbbbbb;
+
+    font-size: 13px;
+}
+
+.join-column .primary-btn {
+    margin-top: 30px;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    border-color: #ffffff;
+}
+
+.join-column .primary-btn:hover {
+    background: #111111;
+
+    color: #ffffff;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.site-footer {
+    background: #111111;
+
+    color: #ffffff;
+
+    border-top: 1px solid #333333;
+
+    padding: 65px max(32px, calc((100vw - 1336px) / 2)) 30px;
+}
+
+.footer-main {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 50px;
+}
+
+.footer-brand {
+    font-size: 15px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.2em;
+}
+
+.footer-location {
+    margin-top: 4px;
+
+    color: #777777;
+
+    font-size: 8px;
+
+    letter-spacing: 0.25em;
+}
+
+.footer-main p {
+    margin-top: 20px;
+
+    color: #999999;
+}
+
+.footer-links {
+    display: flex;
+
+    gap: 25px;
+
+    align-items: flex-start;
+}
+
+.footer-links a {
+    color: #aaaaaa;
+
+    font-size: 10px;
+}
+
+.footer-bottom {
+    margin-top: 60px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #333333;
+
+    color: #666666;
+
+    font-size: 8px;
+}
+
+
+/* =====================================================
+   MODALS
+===================================================== */
+
+.modal-backdrop {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.modal-backdrop.open {
+    display: flex;
+}
+
+.modal {
+    position: relative;
+
+    display: none;
+
+    width: min(500px, 100%);
+
+    background: #ffffff;
+
+    color: #111111;
+
+    padding: 45px;
+}
+
+.modal.open {
+    display: block;
+}
+
+.modal-close {
+    position: absolute;
+
+    top: 14px;
+    right: 17px;
+
+    width: 35px;
+    height: 35px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #111111;
+
+    font-size: 25px;
+}
+
+.modal-eyebrow {
+    margin-bottom: 18px;
+
+    font-size: 9px;
+
+    color: #777777;
+
+    letter-spacing: 0.2em;
+}
+
+.modal h2 {
+    font-size: 48px;
+
+    line-height: 0.95;
+}
+
+.modal-description {
+    margin-top: 15px;
+
+    margin-bottom: 28px;
+
+    color: #666666;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.auth-modal label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 11px;
+}
+
+.auth-modal input,
+.search-modal input {
+    width: 100%;
+
+    height: 48px;
+
+    margin-bottom: 18px;
+
+    padding: 0 14px;
+
+    border: 1px solid #cccccc;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    outline: none;
+}
+
+.auth-modal input:focus,
+.search-modal input:focus {
+    border-color: #111111;
+}
+
+.auth-message {
+    min-height: 20px;
+
+    margin-top: 15px;
+
+    font-size: 11px;
+
+    color: #555555;
+
+    line-height: 1.5;
+}
+
+.auth-switch {
+    margin-top: 25px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eeeeee;
+
+    text-align: center;
+
+    font-size: 11px;
+
+    color: #777777;
+}
+
+.auth-switch button {
+    border: 0;
+
+    background: transparent;
+
+    color: #111111;
+
+    text-decoration: underline;
+
+    font-size: 11px;
+
+    margin-left: 5px;
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.search-modal h2 {
+    margin-bottom: 25px;
+}
+
+.search-results {
+    min-height: 50px;
+
+    color: #777777;
+
+    font-size: 12px;
+}
+
+.search-result-item {
+    padding: 13px 0;
+
+    border-bottom: 1px solid #eeeeee;
+
+    cursor: pointer;
+}
+
+.search-result-item strong {
+    display: block;
+
+    color: #111111;
+
+    font-family: "Cormorant Garamond", serif;
+
+    font-size: 22px;
+}
+
+.search-result-item span {
+    font-size: 9px;
+
+    color: #888888;
+
+    letter-spacing: 0.1em;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .desktop-nav {
+        gap: 18px;
+        margin-right: 15px;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-visual {
+        max-width: 800px;
+    }
+
+    .listing-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .vendor-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .wedding-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .wedding-large {
+        grid-column: span 2;
+    }
+
+    .join-column {
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
+    .join-column + .join-column {
+        padding-left: 32px;
+    }
+
+}
+
+
+@media (max-width: 750px) {
+
+    .header-inner {
+        height: 62px;
+
+        padding: 0 18px;
+    }
+
+    .desktop-nav {
+        display: none;
+    }
+
+    .menu-button {
+        display: flex;
+    }
+
+    .header-actions {
+        gap: 4px;
+    }
+
+    .hero {
+        min-height: auto;
+
+        padding: 70px 20px;
+
+        gap: 50px;
+    }
+
+    h1 {
+        font-size: 64px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .hero-visual {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .hero-card-large {
+        grid-column: span 2;
+
+        grid-row: auto;
+    }
+
+    .placeholder-image {
+        height: 300px;
+    }
+
+    .category-strip {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .category-strip a {
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .category-strip a:nth-child(2) {
+        border-right: 0;
+    }
+
+    .content-section,
+    .journal-section {
+        padding: 80px 20px;
+    }
+
+    .section-heading,
+    .journal-heading {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .listing-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vendor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wedding-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wedding-large {
+        grid-column: auto;
+    }
+
+    .journal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .journal-card:first-child {
+        border-left: 1px solid #dddddd;
+    }
+
+    .join-section {
+        grid-template-columns: 1fr;
+    }
+
+    .join-column {
+        min-height: 430px;
+
+        padding: 70px 25px;
+    }
+
+    .join-column + .join-column {
+        border-left: 0;
+
+        border-top: 1px solid #444444;
+
+        padding-left: 25px;
+    }
+
+    .footer-main {
+        flex-direction: column;
+    }
+
+    .footer-links {
+        flex-wrap: wrap;
+    }
+
+    .modal {
+        padding: 35px 25px;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    h2 {
+        font-size: 48px;
+    }
+
+    .hero-visual {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-card-large {
+        grid-column: auto;
+    }
+
+    .hero-card-small {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        align-items: center;
+    }
+
+    .hero-card-small .placeholder-image {
+        height: 150px;
+    }
+
+    .hero-card-small strong {
+        padding: 20px;
+    }
+
+    .category-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .category-strip a {
+        border-right: 0;
+    }
+
+    .modal h2 {
+        font-size: 40px;
+    }
+
+}

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discover — The Wed Tale</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<style>
+.directory{max-width:1300px;margin:auto;padding:70px 30px 100px}
+.directory-header{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:45px}
+.directory-header h1{font-size:clamp(55px,8vw,105px);line-height:.85}
+.directory-intro{max-width:390px;color:#777;font-size:13px;line-height:1.7}
+.filters{display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:10px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:15px 0;margin-bottom:45px}
+.filters input,.filters select{width:100%;padding:13px 12px;border:1px solid #ddd;background:#fff;font:inherit;font-size:12px;outline:none}
+.clear-button{padding:13px 16px;background:#111;color:#fff;border:1px solid #111;font-size:10px;cursor:pointer}
+.results-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.results-meta p{font-size:10px;letter-spacing:.15em;color:#777}
+.business-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.business-card{border:1px solid #ddd;min-height:330px;padding:25px;display:flex;flex-direction:column;justify-content:space-between}
+.business-top{display:flex;justify-content:space-between;gap:15px}
+.business-number{font-size:9px;color:#888;letter-spacing:.15em}
+.business-category{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:#777}
+.business-card h2{font-size:35px;line-height:1;margin:25px 0 10px}
+.business-city{font-size:11px;color:#777}
+.business-description{font-size:12px;color:#777;line-height:1.6;margin-top:15px}
+.business-bottom{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-top:25px}
+.business-price{font-size:11px}
+.save-button{border:0;border-bottom:1px solid #111;background:transparent;padding:0 0 4px;font-size:10px;cursor:pointer}
+.message{border:1px solid #ddd;padding:30px;color:#777;font-size:13px}
+@media(max-width:900px){
+.filters{grid-template-columns:1fr 1fr}
+.business-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+.directory{padding:50px 20px 80px}
+.directory-header{flex-direction:column;align-items:flex-start}
+.filters{grid-template-columns:1fr}
+.business-grid{grid-template-columns:1fr}
+.business-card h2{font-size:31px}
+}
+</style>
+</head>
+
+<body>
+
+<nav class="dashboard-nav">
+<a href="index.html">← THE WED TALE</a>
+<div>
+<a href="couple-dashboard.html">ACCOUNT</a>
+</div>
+</nav>
+
+<main class="directory">
+
+<header class="directory-header">
+<div>
+<p class="eyebrow">THE DIRECTORY</p>
+<h1>Find your<br><em>people.</em></h1>
+</div>
+
+<p class="directory-intro">
+Discover approved wedding venues and vendors. Search by name, category or city and save the ones you want to come back to.
+</p>
+</header>
+
+<section class="filters">
+<input id="searchInput" type="search" placeholder="Search venues, vendors, names…">
+
+<select id="categoryFilter">
+<option value="">All categories</option>
+<option value="Venue">Venue</option>
+<option value="Photographer">Photographer</option>
+<option value="Planner">Planner</option>
+<option value="Decorator">Decorator</option>
+<option value="Catering">Catering</option>
+<option value="Makeup Artist">Makeup Artist</option>
+<option value="Mehendi">Mehendi</option>
+<option value="Jewellery">Jewellery</option>
+<option value="Bridal Wear">Bridal Wear</option>
+<option value="Groom Wear">Groom Wear</option>
+<option value="Invitation">Invitation</option>
+<option value="Entertainment">Entertainment</option>
+<option value="Other">Other</option>
+</select>
+
+<input id="cityFilter" type="search" placeholder="City">
+
+<button class="clear-button" id="clearFilters">CLEAR</button>
+</section>
+
+<div class="results-meta">
+<p id="resultCount">Loading…</p>
+<p>APPROVED BUSINESSES</p>
+</div>
+
+<section id="businessGrid" class="business-grid">
+<div class="message">Loading the directory…</div>
+</section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+let businesses = [];
+let currentUser = null;
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, function(char) {
+    return {
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[char];
+  });
+}
+
+async function getSession() {
+  const { data } = await supabaseClient.auth.getSession();
+  currentUser = data.session ? data.session.user : null;
+}
+
+async function loadBusinesses() {
+  const grid = document.getElementById("businessGrid");
+
+  const { data, error } = await supabaseClient
+    .from("businesses")
+    .select("id,name,category,city,description,phone,instagram,website,price_range,status")
+    .eq("status", "approved")
+    .order("created_at", { ascending:false });
+
+  if (error) {
+    grid.innerHTML =
+      '<div class="message">Unable to load the directory. ' +
+      escapeHtml(error.message) +
+      '</div>';
+    return;
+  }
+
+  businesses = data || [];
+  renderBusinesses();
+}
+
+function renderBusinesses() {
+  const grid = document.getElementById("businessGrid");
+  const search = document.getElementById("searchInput").value.trim().toLowerCase();
+  const category = document.getElementById("categoryFilter").value.toLowerCase();
+  const city = document.getElementById("cityFilter").value.trim().toLowerCase();
+
+  const filtered = businesses.filter(function(business) {
+    const searchable = [
+      business.name,
+      business.category,
+      business.city,
+      business.description
+    ].join(" ").toLowerCase();
+
+    const matchesSearch = !search || searchable.includes(search);
+    const matchesCategory =
+      !category ||
+      String(business.category || "").toLowerCase() === category;
+    const matchesCity =
+      !city ||
+      String(business.city || "").toLowerCase().includes(city);
+
+    return matchesSearch && matchesCategory && matchesCity;
+  });
+
+  document.getElementById("resultCount").textContent =
+    filtered.length + (filtered.length === 1 ? " RESULT" : " RESULTS");
+
+  if (!filtered.length) {
+    grid.innerHTML =
+      '<div class="message">No approved businesses match your search yet.</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(function(business, index) {
+    return `
+      <article class="business-card">
+        <div>
+          <div class="business-top">
+            <span class="business-number">
+              ${String(index + 1).padStart(2,"0")}
+            </span>
+            <span class="business-category">
+              ${escapeHtml(business.category || "Wedding business")}
+            </span>
+          </div>
+
+          <h2>
+          <a
+            href="business.html?id=${encodeURIComponent(business.id)}"
+            style="color:inherit;text-decoration:none"
+          >
+            ${escapeHtml(business.name)}
+          </a>
+        </h2>
+
+          ${
+            business.city
+              ? '<div class="business-city">' +
+                escapeHtml(business.city) +
+                '</div>'
+              : ""
+          }
+
+          ${
+            business.description
+              ? '<p class="business-description">' +
+                escapeHtml(business.description) +
+                '</p>'
+              : ""
+          }
+        </div>
+
+        <div class="business-bottom">
+          <span class="business-price">
+            ${escapeHtml(business.price_range || "")}
+          </span>
+
+          <div style="display:flex;gap:18px;align-items:center">
+            <a
+              class="save-button"
+              href="business.html?id=${encodeURIComponent(business.id)}"
+              style="text-decoration:none"
+            >
+              VIEW →
+            </a>
+
+            <button
+              class="save-button"
+              onclick="saveBusiness('${business.id}')">
+              SAVE
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+async function saveBusiness(businessId) {
+  if (!currentUser) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("favorites")
+    .insert({
+      couple_id: currentUser.id,
+      business_id: businessId
+    });
+
+  if (error) {
+    if (error.code === "23505") {
+      alert("Already saved.");
+      return;
+    }
+
+    alert("Could not save this business: " + error.message);
+    return;
+  }
+
+  alert("Saved to your favourites.");
+}
+
+document.getElementById("searchInput").addEventListener("input", renderBusinesses);
+document.getElementById("categoryFilter").addEventListener("change", renderBusinesses);
+document.getElementById("cityFilter").addEventListener("input", renderBusinesses);
+
+document.getElementById("clearFilters").addEventListener("click", function() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("categoryFilter").value = "";
+  document.getElementById("cityFilter").value = "";
+  renderBusinesses();
+});
+
+document.addEventListener("DOMContentLoaded", async function() {
+  if (!window.supabaseClient) {
+    document.getElementById("businessGrid").innerHTML =
+      '<div class="message">Supabase is not configured. Check supabase.js.</div>';
+    return;
+  }
+
+  await getSession();
+  await loadBusinesses();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Details — The Wed Tale</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+.dashboard{max-width:1200px;margin:auto;padding:70px 30px}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:20px 30px;border-bottom:1px solid #ddd}
+.nav a{font-size:10px;letter-spacing:.15em}
+.logout{border:1px solid #111;background:#111;color:#fff;padding:10px 16px;font-size:10px;cursor:pointer}
+.head{margin-bottom:55px}.head h1{font-size:clamp(55px,7vw,90px)}.sub{color:#777;max-width:520px;margin-top:18px;font-size:13px}
+.section{margin-top:55px}.heading{border-bottom:1px solid #ddd;padding-bottom:18px;margin-bottom:25px}.heading h2{font-size:46px}
+.panel{border:1px solid #ddd;padding:30px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.field{display:flex;flex-direction:column;gap:8px}.full{grid-column:1/-1}
+label{font-size:9px;letter-spacing:.14em}input,textarea{border:1px solid #ccc;padding:13px;font:inherit;font-size:13px;background:#fff}textarea{min-height:130px;resize:vertical}
+.save{margin-top:22px;border:1px solid #111;background:#111;color:#fff;padding:13px 20px;font-size:10px;cursor:pointer}
+.notice{display:none;margin-top:18px;border:1px solid #ddd;padding:14px;font-size:12px}.notice.show{display:block}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<nav class="nav">
+<a href="couple-dashboard.html">← COUPLE DASHBOARD</a>
+<button class="logout" id="logout">LOG OUT</button>
+</nav>
+<main class="dashboard">
+<header class="head">
+<p class="eyebrow">YOUR WEDDING</p>
+<h1>The details<br><em>matter.</em></h1>
+<p class="sub">Keep the essentials of your celebration in one place. You can update these details whenever your plans change.</p>
+</header>
+
+<section class="section">
+<div class="heading"><p class="eyebrow">WEDDING PROFILE</p><h2>Your celebration.</h2></div>
+<div class="panel">
+<form id="form">
+<div class="grid">
+<div class="field"><label>PARTNER ONE</label><input id="partner_one" maxlength="100" placeholder="Name"></div>
+<div class="field"><label>PARTNER TWO</label><input id="partner_two" maxlength="100" placeholder="Name"></div>
+<div class="field"><label>WEDDING DATE</label><input id="wedding_date" type="date"></div>
+<div class="field"><label>CITY</label><input id="city" maxlength="100" placeholder="Vadodara"></div>
+<div class="field"><label>GUEST COUNT</label><input id="guest_count" type="number" min="1" max="100000" placeholder="250"></div>
+<div class="field"><label>VENUE</label><input id="venue" maxlength="200" placeholder="Venue name"></div>
+<div class="field full"><label>NOTES</label><textarea id="notes" maxlength="3000" placeholder="Anything you'd like to remember about your wedding plans."></textarea></div>
+</div>
+<button class="save" type="submit" id="save">SAVE WEDDING DETAILS →</button>
+</form>
+<div class="notice" id="notice"></div>
+</div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script>
+let userId=null;
+
+function notice(message){
+ const n=document.getElementById("notice"); n.textContent=message; n.classList.add("show");
+ setTimeout(()=>n.classList.remove("show"),3500);
+}
+function val(id){return document.getElementById(id).value.trim()}
+
+async function load(){
+ const {data,error}=await supabaseClient.from("wedding_profiles").select("*").eq("couple_id",userId).maybeSingle();
+ if(error){notice("Wedding details table is not available yet. Run the supplied SQL in Supabase first.");return}
+ if(!data)return;
+ ["partner_one","partner_two","city","venue","notes"].forEach(k=>document.getElementById(k).value=data[k]||"");
+ document.getElementById("wedding_date").value=data.wedding_date||"";
+ document.getElementById("guest_count").value=data.guest_count||"";
+}
+
+document.addEventListener("DOMContentLoaded",async()=>{
+ if(!window.supabaseClient)return;
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session){location.href="index.html";return}
+ const {data:profile}=await supabaseClient.from("profiles").select("role").eq("id",session.user.id).single();
+ if(!profile || profile.role!=="couple"){location.href="index.html";return}
+ userId=session.user.id;
+ await load();
+
+ document.getElementById("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const btn=document.getElementById("save"); btn.disabled=true; btn.textContent="SAVING…";
+  const payload={
+   couple_id:userId,
+   partner_one:val("partner_one")||null,
+   partner_two:val("partner_two")||null,
+   wedding_date:document.getElementById("wedding_date").value||null,
+   city:val("city")||null,
+   guest_count:document.getElementById("guest_count").value ? Number(document.getElementById("guest_count").value) : null,
+   venue:val("venue")||null,
+   notes:val("notes")||null,
+   updated_at:new Date().toISOString()
+  };
+  const {error}=await supabaseClient.from("wedding_profiles").upsert(payload,{onConflict:"couple_id"});
+  btn.disabled=false; btn.textContent="SAVE WEDDING DETAILS →";
+  if(error){notice("Could not save your details. Please try again.");return}
+  notice("Your wedding details have been saved.");
+ });
+
+ document.getElementById("logout").addEventListener("click",async()=>{
+  await supabaseClient.auth.signOut(); location.href="index.html";
+ });
+});
+</script>
+</body>
+</html>

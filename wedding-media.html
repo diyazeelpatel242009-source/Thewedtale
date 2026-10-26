@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wedding Media — The Wed Tale</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+*{box-sizing:border-box}.page{max-width:1100px;margin:auto;padding:60px 28px}.nav{display:flex;justify-content:space-between;padding:20px 28px;border-bottom:1px solid #ddd}.nav a{font-size:10px;letter-spacing:.13em}.intro{max-width:650px;color:#777;font-size:13px;line-height:1.7}.panel{border:1px solid #ddd;padding:26px;margin-top:24px}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}label{display:block;font-size:9px;letter-spacing:.14em;margin-bottom:9px}select,input[type=file]{width:100%;padding:13px;border:1px solid #ccc;background:white;font:inherit;font-size:13px}.btn{margin-top:20px;padding:13px 18px;background:#111;color:white;border:1px solid #111;font-size:10px;cursor:pointer}.btn:disabled{opacity:.55}.note{display:none;border:1px solid #ddd;padding:14px;margin-top:18px;font-size:12px}.note.show{display:block}.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}.photo{border:1px solid #ddd;padding:8px;min-width:0}.photo img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#eee}.photo p{font-size:11px;overflow-wrap:anywhere}.photo button{background:white;border:1px solid #111;padding:8px;font-size:9px;cursor:pointer}@media(max-width:650px){.row{grid-template-columns:1fr}.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head>
+<body>
+<nav class="nav"><a href="couple-dashboard.html">← COUPLE DASHBOARD</a><a href="index.html">THE WED TALE</a></nav>
+<main class="page">
+<p class="eyebrow">YOUR WEDDING</p><h1 style="font-size:clamp(48px,7vw,82px)">Moments worth<br><em>remembering.</em></h1>
+<p class="intro">Upload images to your account gallery. Only upload photos you own or have permission to share. These uploads are not automatically published to the public Real Weddings section.</p>
+<section class="panel"><h2 style="font-size:36px">Upload images</h2>
+<form id="uploadForm"><div class="row"><div><label for="mediaType">IMAGE TYPE</label><select id="mediaType"><option value="wedding">My wedding / celebration</option><option value="inspiration">Wedding inspiration</option></select></div><div><label for="files">CHOOSE IMAGES (JPEG, PNG, WEBP; MAX 10 MB EACH)</label><input id="files" type="file" accept="image/jpeg,image/png,image/webp" multiple required></div></div><button class="btn" id="uploadButton">UPLOAD SELECTED IMAGES →</button></form><div id="notice" class="note"></div></section>
+<section class="panel"><h2 style="font-size:36px">Your uploads</h2><div id="gallery" class="gallery"></div><p id="empty" class="intro">Your uploaded images will appear here.</p></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase.js"></script>
+<script>
+let user=null;const bucket="wedding-media";const $=id=>document.getElementById(id);
+function message(t){$("notice").textContent=t;$("notice").classList.add("show")}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function safeName(n){return n.replace(/[^a-zA-Z0-9._-]/g,"-").slice(-100)}
+async function loadGallery(){
+ const {data,error}=await supabaseClient.storage.from(bucket).list(user.id,{limit:100,sortBy:{column:"created_at",order:"desc"}});
+ if(error){message("Could not load uploads. Confirm the wedding-media bucket and policies are set up.");return}
+ const files=(data||[]).filter(f=>f.name&&!f.name.startsWith("."));$("gallery").innerHTML="";$("empty").style.display=files.length?"none":"block";
+ for(const f of files){
+  const path=user.id+"/"+f.name;const {data:u}=supabaseClient.storage.from(bucket).getPublicUrl(path);
+  const card=document.createElement("article");card.className="photo";
+  card.innerHTML=`<img src="${esc(u.publicUrl)}" alt="Uploaded image"><p>${esc(f.name)}</p><button type="button">DELETE</button>`;
+  card.querySelector("button").addEventListener("click",async()=>{if(!confirm("Delete this image?"))return;const {error}=await supabaseClient.storage.from(bucket).remove([path]);if(error){message("Could not delete this image.");return}message("Image deleted.");loadGallery()});
+  $("gallery").appendChild(card);
+ }
+}
+document.addEventListener("DOMContentLoaded",async()=>{
+ if(!window.supabaseClient)return;
+ const {data:{session}}=await supabaseClient.auth.getSession();if(!session){location.href="index.html";return}
+ const {data:profile}=await supabaseClient.from("profiles").select("role").eq("id",session.user.id).single();
+ if(!profile||!["couple","business"].includes(profile.role)){location.href="index.html";return}
+ user=session.user;await loadGallery();
+ $("uploadForm").addEventListener("submit",async e=>{
+  e.preventDefault();const files=Array.from($("files").files||[]);if(!files.length)return;
+  const allowed=["image/jpeg","image/png","image/webp"];
+  for(const f of files){if(!allowed.includes(f.type)){message("Choose JPEG, PNG or WEBP images only.");return}if(f.size>10*1024*1024){message("Each image must be 10 MB or smaller.");return}}
+  const b=$("uploadButton");b.disabled=true;b.textContent="UPLOADING…";let ok=0,failed=0;
+  for(const f of files){const name=Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+safeName(f.name);const {error}=await supabaseClient.storage.from(bucket).upload(user.id+"/"+name,f,{contentType:f.type,upsert:false});if(error)failed++;else ok++}
+  b.disabled=false;b.textContent="UPLOAD SELECTED IMAGES →";$("files").value="";message(`${ok} image(s) uploaded${failed?"; "+failed+" failed":""}. Selected type: ${$("mediaType").value}.`);await loadGallery();
+ });
+});
+</script></body></html>
