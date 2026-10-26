@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
        ELEMENTS
     ===================================================== */
 
-
     const modalBackdrop = document.getElementById("modalBackdrop");
     const authModal = document.getElementById("authModal");
     const modalClose = document.getElementById("modalClose");
